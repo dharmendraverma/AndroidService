@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,7 +17,7 @@ public class ServiceWorker {
 
     ServiceWorker(String service) {
         mServiceTag = service;
-        mWorkerQueue = new LinkedList<>();
+        mWorkerQueue = new LinkedBlockingQueue<>();
         mMainThreadHandler = new Handler(Looper.getMainLooper());
         Thread startBackGroundTask = new Thread(new BackGroundTaskRun(mMainThreadHandler, mWorkerQueue, mSize));
         startBackGroundTask.start();
@@ -75,8 +74,6 @@ public class ServiceWorker {
                     }
                 }
 
-                synchronized (mSharedQueue) {
-                    mSharedQueue.notifyAll();
                     mTaskCallBack = mSharedQueue.poll();
                     if (mTaskCallBack != null) {
                         mFinalResult = mTaskCallBack.onExecuteTask();
@@ -88,7 +85,6 @@ public class ServiceWorker {
                             mTaskCallBack.onTaskComplete(mFinalResult);
                         }
                     });
-                }
             }
         }
     }
