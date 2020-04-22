@@ -4,20 +4,21 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServiceWorker {
 
     private String mServiceTag;
-    private final BlockingQueue<Task> mWorkerQueue;
+    private final Queue<Task> mWorkerQueue;
     private int mSize = Integer.MAX_VALUE;
     Handler mMainThreadHandler;
 
 
     ServiceWorker(String service) {
         mServiceTag = service;
-        mWorkerQueue = new LinkedBlockingQueue<>();
+        mWorkerQueue = new LinkedList<>();
         mMainThreadHandler = new Handler(Looper.getMainLooper());
         Thread startBackGroundTask = new Thread(new BackGroundTaskRun(mMainThreadHandler, mWorkerQueue, mSize));
         startBackGroundTask.start();
@@ -49,12 +50,12 @@ public class ServiceWorker {
 
     class BackGroundTaskRun implements Runnable {
 
-        private final BlockingQueue<Task> mSharedQueue;
+        private final Queue<Task> mSharedQueue;
         Object mFinalResult;
         Handler mMainThreadHandler;
         Task mTaskCallBack;
 
-        public BackGroundTaskRun(Handler handler, BlockingQueue sharedQueue, int size) {
+        public BackGroundTaskRun(Handler handler, Queue sharedQueue, int size) {
             this.mSharedQueue = sharedQueue;
             this.mMainThreadHandler = handler;
         }
