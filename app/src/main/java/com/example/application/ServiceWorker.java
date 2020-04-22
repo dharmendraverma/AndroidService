@@ -74,9 +74,11 @@ public class ServiceWorker {
                     }
                 }
 
+                synchronized (mSharedQueue) {
                     mTaskCallBack = mSharedQueue.poll();
                     if (mTaskCallBack != null) {
                         mFinalResult = mTaskCallBack.onExecuteTask();
+                        mSharedQueue.notifyAll();
                     }
                     mMainThreadHandler.post(new Runnable() {
                         @Override
@@ -85,6 +87,7 @@ public class ServiceWorker {
                             mTaskCallBack.onTaskComplete(mFinalResult);
                         }
                     });
+                }
             }
         }
     }
